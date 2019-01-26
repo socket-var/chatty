@@ -74,6 +74,7 @@ function LoginPage(props) {
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
           />
+          <div><a href="/auth/register">Create Account</a></div>
           <Button
             type="submit"
             fullWidth

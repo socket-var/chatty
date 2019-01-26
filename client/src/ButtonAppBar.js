@@ -15,8 +15,12 @@ const styles = theme => ({
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper
   },
+  floatToolBarItems: {
+    justifyContent: "space-between"
+  },
   logo: {
-    marginRight: "2em"
+    marginRight: "2em",
+    textDecoration: "none"
   },
   growChild: {
     flexGrow: 1
@@ -28,7 +32,7 @@ const styles = theme => ({
 
 class SimpleTabs extends React.Component {
   state = {
-    value: 0
+    value: null
   };
 
   handleChange = (event, value) => {
@@ -42,34 +46,38 @@ class SimpleTabs extends React.Component {
     return (
       <div className={classes.root}>
         <AppBar position="static">
-          <Toolbar>
+          <Toolbar className={this.props.isLoggedIn ? "" : classes.floatToolBarItems}>
             <Typography
               variant="h3"
               color="inherit"
               className={[classes.defaultChild, classes.logo].join(" ")}
+              to="/" component={Link}
             >
               Chatty
             </Typography>
 
-            <Tabs
-              value={value}
-              onChange={this.handleChange}
-              className={classes.growChild}
-            >
-              <Tab label="Chats" to="/chat" component={Link} />
-              <Tab label="Status" to="/status" component={Link} />
-              <Tab label="Profile" to="/profile" component={Link} />
-            </Tabs>
             {this.props.isLoggedIn ? (
-              <Button
-                color="inherit"
-                className={classes.defaultChild}
-                onClick={this.props.signOutHandler}
-              >
-                Sign out
-              </Button>
-            ) : (
               <React.Fragment>
+                <Tabs
+                  value={value ? value : false}
+                  onChange={this.handleChange}
+                  className={classes.growChild}
+                >
+                  <Tab label="Chats" to="/chat" component={Link} />
+                  <Tab label="Status" to="/status" component={Link} />
+                  <Tab label="Profile" to="/profile" component={Link} />
+                </Tabs>
+
+                <Button
+                  color="inherit"
+                  className={classes.defaultChild}
+                  onClick={this.props.signOutHandler}
+                >
+                  Sign out
+                </Button>
+              </React.Fragment>
+            ) : (
+              <div>
                 <Button
                   color="inherit"
                   className={classes.defaultChild}
@@ -86,7 +94,7 @@ class SimpleTabs extends React.Component {
                 >
                   Login
                 </Button>
-              </React.Fragment>
+              </div>
             )}
           </Toolbar>
         </AppBar>

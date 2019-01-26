@@ -83,6 +83,7 @@ function SignUpPage(props) {
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
           />
+          <div><a href="/auth/login">Already Registered? Login</a></div>
           <Button
             type="submit"
             fullWidth
