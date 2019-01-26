@@ -20,7 +20,9 @@
         "source": "**",
         "destination": "/index.html"
       }
-    ]
+    ],
+    "predeploy": "cd client && npm run build"
+
   },
   "storage": {
     "rules": "storage.rules"
