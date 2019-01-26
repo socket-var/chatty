@@ -7,6 +7,8 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 import PersonIcon from '@material-ui/icons/PersonSharp';
+import Avatar from '@material-ui/core/Avatar';
+
 
 const styles = theme => ({
   root: {
@@ -26,28 +28,27 @@ function SimpleList(props) {
     <div className={classes.root}>
       <List component="nav">
         <ListItem button>
-          <ListItemIcon>
-            {/* replace with Avatar later */}
-            <PersonIcon />
-          </ListItemIcon>
+          <Avatar>
+          <PersonIcon />
+          </Avatar>
           <ListItemText primary="User 1" />
         </ListItem>
         <ListItem button>
-          <ListItemIcon>
+          <Avatar>
             <PersonIcon />
-          </ListItemIcon>
+          </Avatar>
           <ListItemText primary="User 2" />
         </ListItem>
         <ListItem button>
-        <ListItemIcon>
+        <Avatar>
             <PersonIcon />
-          </ListItemIcon>
+          </Avatar>
           <ListItemText primary="User 3" />
         </ListItem>
         <ListItem button>
-        <ListItemIcon>
+        <Avatar>
             <PersonIcon />
-          </ListItemIcon>
+          </Avatar>
           <ListItemText primary="User 4" />
         </ListItem>
       </List>
