@@ -1,15 +1,15 @@
 import React, { Component } from "react";
 import "./App.css";
-import "./ButtonAppBar";
-import ButtonAppBar from "./ButtonAppBar";
+import "../ButtonAppBar";
+import ButtonAppBar from "../ButtonAppBar";
 
 import { BrowserRouter as Router, Route} from "react-router-dom";
-import HomePage from "./HomePage";
-import ChatPage from "./ChatPage";
-import SignUpPage from "./SignUpPage";
-import LoginPage from "./LoginPage";
+import HomePage from "../Home/HomePage";
+import ChatPage from "../Chat/ChatPage";
+import SignUpPage from "../Auth/SignUpPage";
+import LoginPage from "../Auth/LoginPage";
 
-import firebase from "./Firebase";
+import firebase from "../Firebase";
 
 const auth = firebase.auth()
 
