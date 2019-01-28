@@ -66,16 +66,20 @@ function SignUpPage(props) {
         </Typography>
         <form className={classes.form} onSubmit={props.onSubmit}>
           <FormControl margin="normal" required fullWidth>
-            <InputLabel htmlFor="email">Email Address</InputLabel>
+            <InputLabel htmlFor="userNameField">Username</InputLabel>
+            <Input id="userNameField" name="email" autoFocus onChange={props.onInputChange} value={props.userNameField}/>
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel htmlFor="emailField">Email Address</InputLabel>
             <Input id="emailField" name="email" autoComplete="email" autoFocus onChange={props.onInputChange} value={props.emailField}/>
           </FormControl>
           <FormControl margin="normal" required fullWidth>
-            <InputLabel htmlFor="password">Password</InputLabel>
+            <InputLabel htmlFor="passwordField">Password</InputLabel>
             <Input name="password" type="password" id="passwordField" autoComplete="new-password" onChange={props.onInputChange} />
           </FormControl>
 
           <FormControl margin="normal" required fullWidth>
-            <InputLabel htmlFor="password">Confirm Password</InputLabel>
+            <InputLabel htmlFor="confirmPasswordField">Confirm Password</InputLabel>
             <Input name="password" type="password" id="confirmPasswordField" autoComplete="confirm-password" onChange={props.onInputChange}/>
           </FormControl>
 

@@ -3,7 +3,7 @@ import "./App.css";
 import "../ButtonAppBar";
 import ButtonAppBar from "../ButtonAppBar";
 
-import { BrowserRouter as Router, Route} from "react-router-dom";
+import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
 import HomePage from "../Home/HomePage";
 import ChatPage from "../Chat/ChatPage";
 import SignUpPage from "../Auth/SignUpPage";
@@ -11,7 +11,8 @@ import LoginPage from "../Auth/LoginPage";
 
 import firebase from "../Firebase";
 
-const auth = firebase.auth()
+const auth = firebase.auth();
+const db = firebase.database();
 
 class App extends Component {
   constructor(props) {
@@ -22,7 +23,9 @@ class App extends Component {
       redirectToChat: false,
       emailField: "",
       passwordField: "",
-      confirmPasswordField: ""
+      confirmPasswordField: "",
+      userNameField: "",
+      redirectToHome: false
     };
 
     this.signUpHandler = this.signUpHandler.bind(this);
@@ -33,25 +36,54 @@ class App extends Component {
 
   signUpHandler(evt) {
     evt.preventDefault();
-    auth.createUserWithEmailAndPassword(this.state.emailField, this.state.passwordField)
-    .then(() => {
-      this.setState({isLoggedIn: true, redirectToChat: true})
-    })
-    .catch(e => console.log(e.message));
-  }
-  
-  loginHandler(evt) {
-    evt.preventDefault();
-  
-    auth.signInWithEmailAndPassword(this.state.emailField, this.state.passwordField)
-    .then(() => {
-      this.setState({isLoggedIn: true, redirectToChat: true})
-    })
+    let user;
+    auth
+      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .then(() => {
+        return auth.createUserWithEmailAndPassword(
+          this.state.emailField,
+          this.state.passwordField
+        );
+      })
+      .then(result => {
+        user = result.user;
+        user.updateProfile({ displayName: this.state.userNameField });
+      })
+      .then(() => {
+        return db.ref(`/users/${user.uid}`).set({
+          email: user.email,
+          contacts: null,
+          username: this.state.userNameField
+        });
+      })
+      .then(() => {
+        this.setState({ isLoggedIn: true, redirectToChat: true });
+      })
       .catch(e => console.log(e.message));
   }
 
-  signOutHandler() {
-    auth.signOut().then(() => this.setState({isLoggedIn: false}))
+  loginHandler(evt) {
+    evt.preventDefault();
+
+    auth
+      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .then(() => {
+        return auth.signInWithEmailAndPassword(
+          this.state.emailField,
+          this.state.passwordField
+        );
+      })
+
+      .then(() => {
+        this.setState({ isLoggedIn: true, redirectToChat: true });
+      })
+      .catch(e => console.log(e.message));
+  }
+
+  signOutHandler(evt) {
+    evt.preventDefault()
+    auth.signOut()
+    .then(() => this.setState({ isLoggedIn: false, redirectToHome: true, redirectToChat: false }));
   }
 
   onInputChange(evt) {
@@ -60,41 +92,39 @@ class App extends Component {
     });
   }
 
-  componentWillMount() {
-  }
+  componentWillMount() {}
 
   render() {
-    const { isLoggedIn, redirectToChat } = this.state
+    const { isLoggedIn, redirectToChat } = this.state;
     return (
       <Router>
         <div className="App">
-          <ButtonAppBar isLoggedIn={isLoggedIn} signOutHandler={this.signOutHandler}/>
+          <ButtonAppBar
+            isLoggedIn={isLoggedIn}
+            signOutHandler={this.signOutHandler}
+          />
+          {this.state.redirectToHome ? <Redirect to="/" /> : ""}
           <Route path="/" exact component={HomePage} />
-          <Route path="/chat" 
-            render={props => (
-              <ChatPage 
-                {...props}
-                isLoggedIn={isLoggedIn} 
-              />
-            )}  
+          <Route
+            path="/chat"
+            render={props => <ChatPage {...props} isLoggedIn={isLoggedIn} />}
           />
           <Route
             path="/auth/register"
             render={props => (
               <SignUpPage
                 {...props}
-                isLoggedIn={isLoggedIn}
                 onSubmit={this.signUpHandler}
                 onInputChange={this.onInputChange}
                 redirectToChat={redirectToChat}
               />
             )}
           />
-          <Route path="/auth/login" 
+          <Route
+            path="/auth/login"
             render={props => (
               <LoginPage
                 {...props}
-                isLoggedIn={isLoggedIn}
                 onSubmit={this.loginHandler}
                 onInputChange={this.onInputChange}
                 redirectToChat={redirectToChat}
