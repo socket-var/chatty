@@ -37,12 +37,12 @@ function CustomizedInputBase(props) {
 
   return (
     <Paper className={[classes.root, classes.stretch].join(" ")} elevation={1}>
-      <InputBase className={classes.input} placeholder="Enter your message here" />
+      <InputBase className={classes.input} placeholder="Enter your message here" value={props.text} onChange={props.handleChange}/>
       <IconButton className={classes.iconButton} aria-label="InsertPhoto">
         <InsertPhotoIcon />
       </IconButton>
       <Divider className={classes.divider} />
-      <IconButton color="primary" className={classes.iconButton} aria-label="Send">
+      <IconButton color="primary" className={classes.iconButton} aria-label="Send" onClick={props.sendMessage}>
         <SendIcon />
       </IconButton>
     </Paper>
