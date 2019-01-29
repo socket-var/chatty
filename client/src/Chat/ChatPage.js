@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-
+import { Redirect } from "react-router-dom";
 import UserList from "./UserList";
 import ChatRoom from "./ChatRoom";
 
@@ -72,6 +72,10 @@ export default class ChatPage extends Component {
   }
 
   render() {
+    if (this.props.redirectToHome || !auth.currentUser) {
+      return <Redirect to="/" />
+    }
+
     return (
       <div className="main-container">
         {/* need friends names for userList may make another listener for this ?*/}

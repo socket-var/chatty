@@ -3,7 +3,7 @@ import "./App.css";
 import "../ButtonAppBar";
 import ButtonAppBar from "../ButtonAppBar";
 
-import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 import HomePage from "../Home/HomePage";
 import ChatPage from "../Chat/ChatPage";
 import SignUpPage from "../Auth/SignUpPage";
@@ -103,11 +103,10 @@ class App extends Component {
             isLoggedIn={isLoggedIn}
             signOutHandler={this.signOutHandler}
           />
-          {this.state.redirectToHome ? <Redirect to="/" /> : ""}
           <Route path="/" exact component={HomePage} />
           <Route
             path="/chat"
-            render={props => <ChatPage {...props} isLoggedIn={isLoggedIn} />}
+            render={props => <ChatPage {...props} isLoggedIn={isLoggedIn} redirectToHome={this.state.redirectToHome}/>}
           />
           <Route
             path="/auth/register"
