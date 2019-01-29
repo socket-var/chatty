@@ -27,18 +27,11 @@ const styles = {
 };
 
 const setMessages = function(snapshot) {
-  const messages = []
   const data = snapshot.val();
-
-  for (let key in data) {
-    const item = data[key];
-    messages.push(item.text);
-  }
-  if (messages.length !== 0) {
+  const message = data.text;
     this.setState({
-      messages: [...this.state.messages, ...messages]
+      messages: [...this.state.messages, message]
     });
-  }
 }
 
 class ChatRoom extends Component {
@@ -77,7 +70,7 @@ class ChatRoom extends Component {
       timestamp
     });
 
-    this.setState({messages: [...this.state.messages, this.state.text]});
+    // this.setState({messages: [...this.state.messages, this.state.text]});
   }
 
   // get all messages sent and received
@@ -90,14 +83,14 @@ class ChatRoom extends Component {
       //need messages
       // if (this.state.load) {
         db.ref(`messages/${user.uid}/${contact}/sent`)
-        .once("value", setMessages.bind(this))
-        .then(() => {
-          return db.ref(`messages/${user.uid}/to/${contact}/received`).once(
-            "value", setMessages.bind(this));
-        })
-        .then(() => {
-          this.setState({load:false})
-        });
+        .on("child_added", setMessages.bind(this))
+          // .then(() => {
+          //   return db.ref(`messages/${user.uid}/to/${contact}/received`).on(
+          //     "value", setMessages.bind(this));
+          // })
+          // .then(() => {
+          //   this.setState({load:false})
+          // });
       // }
       
       

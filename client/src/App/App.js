@@ -92,7 +92,7 @@ class App extends Component {
     });
   }
 
-  componentWillMount() {}
+  componentDidMount() {}
 
   render() {
     const { isLoggedIn, redirectToChat } = this.state;
