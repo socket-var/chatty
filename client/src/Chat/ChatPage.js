@@ -53,7 +53,7 @@ export default class ChatPage extends Component {
     });
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const user = auth.currentUser;
     if (user) {
       // need this for profile details in the future ?

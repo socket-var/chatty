@@ -37,7 +37,7 @@ class UserList extends Component {
   }
 
   // get all user contacts 
-  componentWillMount() {
+  componentDidMount() {
     const user = auth.currentUser;
     if (user) {
       db.ref(`users/${user.uid}/contacts`).on("value", (snapshot) => {
