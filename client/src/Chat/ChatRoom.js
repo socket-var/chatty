@@ -3,7 +3,7 @@ import ChatForm from "./ChatForm";
 import { withStyles } from "@material-ui/core/styles";
 
 import firebase from "../Firebase";
-import MessageContainer from "./MessageContainer";
+import MessageContainer from "./MessageBubble";
 
 const db = firebase.database();
 const auth = firebase.auth();
@@ -26,9 +26,14 @@ const styles = {
   }
 };
 
-const setMessages = function(snapshot) {
+const setMessages = function( direction, snapshot) {
   const data = snapshot.val();
-  const message = data.text;
+  console.log(data);
+  const message = {
+    text: data.text,
+    direction
+  };
+
     this.setState({
       messages: [...this.state.messages, message]
     });
@@ -56,6 +61,7 @@ class ChatRoom extends Component {
     const currentUser = auth.currentUser;
     // add it to me/to/friend/ and friend/from/me
     const timestamp = firebase.database.ServerValue.TIMESTAMP;
+    
     db.ref(
       `messages/${currentUser.uid}/${this.props.currentContactId}/sent`
     ).push({
@@ -70,7 +76,6 @@ class ChatRoom extends Component {
       timestamp
     });
 
-    // this.setState({messages: [...this.state.messages, this.state.text]});
   }
 
   // get all messages sent and received
@@ -82,13 +87,12 @@ class ChatRoom extends Component {
       // load the chat room
       //need messages
       // if (this.state.load) {
+
         db.ref(`messages/${user.uid}/${contact}/sent`)
-        .on("child_added", setMessages.bind(this))
+        .on("child_added", setMessages.bind(this, "right"))
         
         db.ref(`messages/${user.uid}/${contact}/received`).on(
-              "child_added", setMessages.bind(this))
-      }
-      
+              "child_added", setMessages.bind(this, "left"))
       
     }
   }
@@ -96,9 +100,11 @@ class ChatRoom extends Component {
   componentWillUnmount() {
     const user = auth.currentUser;
     const contact = this.props.currentContactId;
-
-    db.ref(`messages/${user.uid}/${contact}/sent`).off();
-    db.ref(`messages/${user.uid}/to/${contact}/received`).off();
+    if (user) {
+      db.ref(`messages/${user.uid}/${contact}/sent`).off();
+      db.ref(`messages/${user.uid}/to/${contact}/received`).off();
+    }
+    
   }
 
   render() {
@@ -111,8 +117,8 @@ class ChatRoom extends Component {
     if (this.props.currentContactId) {
       if (messages) {
         for (let index = 0; index < messages.length; index++) {
-          const message = messages[index];
-          msgList.push(<MessageContainer key={index} message={message} />);
+          const {text, direction} = messages[index];
+          msgList.push(<MessageContainer key={index} message={text} direction={direction} />);
         }
 
         return (

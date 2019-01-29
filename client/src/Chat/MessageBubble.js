@@ -11,14 +11,18 @@ const styles = theme => ({
     paddingBottom: theme.spacing.unit,
     maxWidth: "60%",
     display: "inline-block"
+  },
+  floatRight: {
+    alignSelf: "flex-end"
   }
 });
 
-function MessageContainer(props) {
+function MessageBubble(props) {
   const { classes } = props;
-
+  
   return (
-    <div>
+    <div className={props.direction ? classes.floatRight : ""}>
+      
       <Paper className={classes.root} elevation={1}>
         <Typography component="span">
           {props.message}
@@ -28,8 +32,8 @@ function MessageContainer(props) {
   );
 }
 
-MessageContainer.propTypes = {
+MessageBubble.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(MessageContainer);
+export default withStyles(styles)(MessageBubble);
