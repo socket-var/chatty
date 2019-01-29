@@ -84,14 +84,10 @@ class ChatRoom extends Component {
       // if (this.state.load) {
         db.ref(`messages/${user.uid}/${contact}/sent`)
         .on("child_added", setMessages.bind(this))
-          // .then(() => {
-          //   return db.ref(`messages/${user.uid}/to/${contact}/received`).on(
-          //     "value", setMessages.bind(this));
-          // })
-          // .then(() => {
-          //   this.setState({load:false})
-          // });
-      // }
+        
+        db.ref(`messages/${user.uid}/${contact}/received`).on(
+              "child_added", setMessages.bind(this))
+      }
       
       
     }
