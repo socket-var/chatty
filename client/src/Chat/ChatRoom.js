@@ -3,6 +3,7 @@ import ChatForm from "./ChatForm";
 import { withStyles } from "@material-ui/core/styles";
 
 import firebase from "../Firebase";
+import MessageContainer from "./MessageContainer";
 
 const db = firebase.database();
 const auth = firebase.auth();
@@ -18,15 +19,35 @@ const styles = {
   },
   stretchForm: {
     width: "100%"
+  },
+  messageListParent: {
+    display: "flex",
+    flexDirection: "column"
   }
 };
+
+const setMessages = function(snapshot) {
+  const messages = []
+  const data = snapshot.val();
+
+  for (let key in data) {
+    const item = data[key];
+    messages.push(item.text);
+  }
+  if (messages.length !== 0) {
+    this.setState({
+      messages: [...this.state.messages, ...messages]
+    });
+  }
+}
 
 class ChatRoom extends Component {
   constructor(props) {
     super(props);
     this.state = {
       messages: [],
-      text: ""
+      text: "",
+      load: true
     };
 
     this.sendMessage = this.sendMessage.bind(this);
@@ -34,69 +55,67 @@ class ChatRoom extends Component {
   }
 
   handleChange(evt) {
-    this.setState({text: evt.target.value});
+    this.setState({ text: evt.target.value });
   }
 
   // add message to messages/currUser/receiver/sent
   sendMessage() {
     const currentUser = auth.currentUser;
     // add it to me/to/friend/ and friend/from/me
-    const timestamp = firebase.database.ServerValue.TIMESTAMP
-    db.ref(`messages/${currentUser.uid}/${this.props.currentContactId}/sent`)
-      .push({
-        text: this.state.text,
-        timestamp
-      });
-    
-    db.ref(`messages/${this.props.currentContactId}/${currentUser.uid}/received`)
-    .push({
+    const timestamp = firebase.database.ServerValue.TIMESTAMP;
+    db.ref(
+      `messages/${currentUser.uid}/${this.props.currentContactId}/sent`
+    ).push({
       text: this.state.text,
       timestamp
     });
-    
+
+    db.ref(
+      `messages/${this.props.currentContactId}/${currentUser.uid}/received`
+    ).push({
+      text: this.state.text,
+      timestamp
+    });
+
+    this.setState({messages: [...this.state.messages, this.state.text]});
   }
 
-
   // get all messages sent and received
-  componentWillMount() {
+  componentDidMount() {
     const user = auth.currentUser;
     const contact = this.props.currentContactId;
-    console.log(contact);
-    let messages = [];
 
     if (this.props.currentContactId) {
       // load the chat room
       //need messages
-      db.ref(`messages/${user.uid}/${contact}/sent`).on("value", snapshot => {
-        const messages = snapshot.val();
-
-        // data.map((obj) => {})
-        // for (const key in data) {
-        //   const element = data[key];
-
-        // }
-
-        // this.setState({
-        //   messages: [this.state.messages, ...messages]
-        // });
-        console.log(messages);
-      });
-
-      db.ref(`messages/${user.uid}/to/${contact}/received`).on(
-        "value",
-        snapshot => {
-          const messages = snapshot.val();
-          console.log(messages);
-          // this.setState({
-          //   messages: [this.state.messages, ...messages]
-          // });
-        }
-      );
+      // if (this.state.load) {
+        db.ref(`messages/${user.uid}/${contact}/sent`)
+        .once("value", setMessages.bind(this))
+        .then(() => {
+          return db.ref(`messages/${user.uid}/to/${contact}/received`).once(
+            "value", setMessages.bind(this));
+        })
+        .then(() => {
+          this.setState({load:false})
+        });
+      // }
+      
+      
     }
   }
 
+  componentWillUnmount() {
+    const user = auth.currentUser;
+    const contact = this.props.currentContactId;
+
+    db.ref(`messages/${user.uid}/${contact}/sent`).off();
+    db.ref(`messages/${user.uid}/to/${contact}/received`).off();
+  }
+
   render() {
-    const { classes, messages } = this.props;
+    const { classes } = this.props;
+
+    const messages = this.state.messages;
 
     const msgList = [];
 
@@ -104,21 +123,22 @@ class ChatRoom extends Component {
       if (messages) {
         for (let index = 0; index < messages.length; index++) {
           const message = messages[index];
-          msgList.push(<div>{message}</div>);
+          msgList.push(<MessageContainer key={index} message={message} />);
         }
 
         return (
           <div className={classes.root}>
-            <div className={classes.flexItem}>{msgList}</div>
-            <ChatForm sendMessage={this.sendMessage} text={this.state.text} handleChange={this.handleChange}/>
+            <div className={[classes.flexItem, classes.messageListParent].join(" ")}>{msgList}</div>
+            <ChatForm
+              sendMessage={this.sendMessage}
+              text={this.state.text}
+              handleChange={this.handleChange}
+            />
           </div>
         );
-
       } else {
-        return <div>No messages found. Start texting..!</div>
+        return <div>No messages found. Start texting..!</div>;
       }
-
-      
     } else {
       return <div>Texts appear here</div>;
     }

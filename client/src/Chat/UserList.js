@@ -39,10 +39,13 @@ class UserList extends Component {
   // get all user contacts 
   componentWillMount() {
     const user = auth.currentUser;
-    db.ref(`users/${user.uid}/contacts`).on("value", (snapshot) => {
-      const contacts = snapshot.val() || {}
-      this.setState({contacts});
-    })
+    if (user) {
+      db.ref(`users/${user.uid}/contacts`).on("value", (snapshot) => {
+        const contacts = snapshot.val() || {}
+        this.setState({contacts});
+      })
+    }
+    
   }
 
   render() {
@@ -58,7 +61,7 @@ class UserList extends Component {
       const user = contacts[userId];
 
       userList.push(
-        <ListItem button onClick={this.props.updateCurrentContact} data-userid={userId}>
+        <ListItem button onClick={this.props.updateCurrentContact} data-userid={userId} key={user.username}>
           <Avatar>
             <PersonIcon />
           </Avatar>
@@ -66,8 +69,6 @@ class UserList extends Component {
         </ListItem>
       )
     }
-
-    console.log(userList);
 
   }
 

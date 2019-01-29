@@ -66,7 +66,6 @@ export default class ChatPage extends Component {
   updateCurrentContact(evt) {
     const currentContactId = evt.currentTarget.dataset.userid;
     // once id is updated it is delegated to chat room to retrieve messages
-    console.log(currentContactId);
     this.setState({
       currentContactId
     });
