@@ -10,7 +10,8 @@ const styles = theme => ({
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
     maxWidth: "60%",
-    display: "inline-block"
+    display: "inline-block",
+    margin: "0.6em 0"
   },
   floatRight: {
     alignSelf: "flex-end"
@@ -21,7 +22,7 @@ function MessageBubble(props) {
   const { classes } = props;
   
   return (
-    <div className={props.direction == "right"? classes.floatRight : ""}>
+    <div className={props.direction === "right"? classes.floatRight : ""}>
       
       <Paper className={classes.root} elevation={1}>
         <Typography component="div">

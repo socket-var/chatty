@@ -23,13 +23,12 @@ const styles = {
   messageListParent: {
     display: "flex",
     flexDirection: "column-reverse",
-    justifyContent: "space-around"
+    overflowY: "scroll",
   }
 };
 
 const setMessages = function( direction, snapshot) {
   const data = snapshot.val();
-  console.log(direction);
   const message = {
     text: data.text,
     direction
