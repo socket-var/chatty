@@ -75,7 +75,7 @@ class App extends Component {
       })
 
       .then(() => {
-        this.setState({ isLoggedIn: true, redirectToChat: true });
+        this.setState({ isLoggedIn: true, redirectToChat: true, redirectToHome: false });
       })
       .catch(e => console.log(e.message));
   }
