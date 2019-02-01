@@ -21,10 +21,10 @@ function MessageBubble(props) {
   const { classes } = props;
   
   return (
-    <div className={props.direction ? classes.floatRight : ""}>
+    <div className={props.direction == "right"? classes.floatRight : ""}>
       
       <Paper className={classes.root} elevation={1}>
-        <Typography component="span">
+        <Typography component="div">
           {props.message}
         </Typography>
       </Paper>

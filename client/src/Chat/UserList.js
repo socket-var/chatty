@@ -59,7 +59,7 @@ class UserList extends Component {
   
     for (let userId in contacts) {
       const user = contacts[userId];
-
+      console.log(userId)
       userList.push(
         <ListItem button onClick={this.props.updateCurrentContact} data-userid={userId} key={user.username}>
           <Avatar>

@@ -38,13 +38,30 @@ export default class ChatPage extends Component {
 
   addContact(evt) {
     evt.preventDefault();
-
+    const {newContactUsername, newContactEmail} = this.state;
+    
     const user = auth.currentUser;
 
-    db.ref(`/users/${user.uid}/contacts`).push({
-      username: this.state.newContactUsername,
-      email: this.state.newContactEmail
-    });
+    const query = db.ref("users").orderByChild("username").equalTo(newContactUsername).limitToLast(1)
+
+    query.once("value")
+      .then((snapshot) => {
+        const data = snapshot.val();
+        const key = Object.keys(data)[0]
+        
+        if (data[key].email === newContactEmail) {
+          db.ref(`/users/${user.uid}/contacts`).set({
+            [key]: {
+              username: newContactUsername,
+              email: newContactEmail
+            }
+            
+          });
+        }
+        
+      })
+
+    
   }
 
   onInputChange(evt) {

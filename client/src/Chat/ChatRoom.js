@@ -22,20 +22,21 @@ const styles = {
   },
   messageListParent: {
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column-reverse",
+    justifyContent: "space-around"
   }
 };
 
 const setMessages = function( direction, snapshot) {
   const data = snapshot.val();
-  console.log(data);
+  console.log(direction);
   const message = {
     text: data.text,
     direction
   };
 
     this.setState({
-      messages: [...this.state.messages, message]
+      messages: [message, ...this.state.messages]
     });
 }
 
@@ -50,9 +51,17 @@ class ChatRoom extends Component {
 
     this.sendMessage = this.sendMessage.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleKeyUp = this.handleKeyUp.bind(this);
+  }
+
+  handleKeyUp(evt) {
+    if (evt.keyCode == 13) {
+      this.sendMessage();
+    }
   }
 
   handleChange(evt) {
+    if (evt)
     this.setState({ text: evt.target.value });
   }
 
@@ -76,6 +85,8 @@ class ChatRoom extends Component {
       timestamp
     });
 
+    this.setState({text: ""});
+
   }
 
   // get all messages sent and received
@@ -83,6 +94,7 @@ class ChatRoom extends Component {
     const user = auth.currentUser;
     const contact = this.props.currentContactId;
 
+    console.log(this.props.currentContactId);
     if (this.props.currentContactId) {
       // load the chat room
       //need messages
@@ -102,7 +114,7 @@ class ChatRoom extends Component {
     const contact = this.props.currentContactId;
     if (user) {
       db.ref(`messages/${user.uid}/${contact}/sent`).off();
-      db.ref(`messages/${user.uid}/to/${contact}/received`).off();
+      db.ref(`messages/${user.uid}/${contact}/received`).off();
     }
     
   }
@@ -128,6 +140,7 @@ class ChatRoom extends Component {
               sendMessage={this.sendMessage}
               text={this.state.text}
               handleChange={this.handleChange}
+              handleKeyUp={this.handleKeyUp}
             />
           </div>
         );
