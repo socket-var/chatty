@@ -53,7 +53,8 @@ class App extends Component {
         return db.ref(`/users/${user.uid}`).set({
           email: user.email,
           contacts: null,
-          username: this.state.userNameField
+          username: this.state.userNameField,
+          uid: user.uid
         });
       })
       .then(() => {

@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
+import React from "react";
+import PropTypes from "prop-types";
+import { withStyles } from "@material-ui/core/styles";
+import Paper from "@material-ui/core/Paper";
+import Typography from "@material-ui/core/Typography";
 
 const styles = theme => ({
   root: {
@@ -18,23 +18,28 @@ const styles = theme => ({
   }
 });
 
-function MessageBubble(props) {
-  const { classes } = props;
-  
-  return (
-    <div className={props.direction === "right"? classes.floatRight : ""}>
-      
-      <Paper className={classes.root} elevation={1}>
-        <Typography component="div">
-          {props.message}
-        </Typography>
-      </Paper>
-    </div>
-  );
-}
+class MessageBubble extends React.Component{
+  constructor(props) {
+    super(props);
 
-MessageBubble.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
+    this.state = {};
+  }
+
+
+
+  render() {
+    const { classes } = this.props;
+
+    return (
+      <div
+        className={this.props.direction === "right" ? classes.floatRight : ""}
+      >
+        <Paper className={classes.root} elevation={1}>
+          <Typography component="div">{this.props.message}</Typography>
+        </Paper>
+      </div>
+    );
+  }
+}
 
 export default withStyles(styles)(MessageBubble);

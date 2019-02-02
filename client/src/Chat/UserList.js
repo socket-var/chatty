@@ -27,56 +27,37 @@ function ListItemLink(props) {
 }
 
 class UserList extends Component {
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      contacts: {}
-    }
-  }
-
-  // get all user contacts 
-  componentDidMount() {
-    const user = auth.currentUser;
-    if (user) {
-      db.ref(`users/${user.uid}/contacts`).on("value", (snapshot) => {
-        const contacts = snapshot.val() || {}
-        this.setState({contacts});
-      })
-    }
-    
-  }
-
   render() {
-    const { classes } = this.props;
+    const { classes, contacts } = this.props;
+    console.log(contacts);
 
-  const userList = [];
+    const userList = [];
 
-  const contacts = this.state.contacts;
-
-  if (Object.keys(contacts).length !== 0 && contacts.constructor === Object) {
-  
-    for (let userId in contacts) {
-      const user = contacts[userId];
-      console.log(userId)
-      userList.push(
-        <ListItem button onClick={this.props.updateCurrentContact} data-userid={userId} key={user.username}>
-          <Avatar>
-            <PersonIcon />
-          </Avatar>
-          <ListItemText primary={user.username} />
-        </ListItem>
-      )
+    if (Object.keys(contacts).length !== 0 && contacts.constructor === Object) {
+      for (let userId in contacts) {
+        const user = contacts[userId];
+        console.log(userId);
+        userList.push(
+          <ListItem
+            button
+            onClick={this.props.updateCurrentContact}
+            data-userid={userId}
+            key={userId}
+          >
+            <Avatar>
+              <PersonIcon />
+            </Avatar>
+            <ListItemText primary={user.username} />
+          </ListItem>
+        );
+      }
     }
 
-  }
-
-  return (
-    <div className={classes.root}>
-      <List component="nav">{userList}</List>
-    </div>
-  );
+    return (
+      <div className={classes.root}>
+        <List component="nav">{userList}</List>
+      </div>
+    );
   }
 }
 

@@ -3,6 +3,7 @@ import ChatForm from "./ChatForm";
 import { withStyles } from "@material-ui/core/styles";
 
 import firebase from "../Firebase";
+import ChatMenuBar from "../Chat/ChatMenuBar";
 import MessageContainer from "./MessageBubble";
 
 const db = firebase.database();
@@ -95,9 +96,6 @@ class ChatRoom extends Component {
 
     console.log(this.props.currentContactId);
     if (this.props.currentContactId) {
-      // load the chat room
-      //need messages
-      // if (this.state.load) {
 
         db.ref(`messages/${user.uid}/${contact}/sent`)
         .on("child_added", setMessages.bind(this, "right"))
@@ -119,7 +117,9 @@ class ChatRoom extends Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const { classes, currentContactId, contacts } = this.props;
+
+    const contactUsername = contacts[currentContactId].username
 
     const messages = this.state.messages;
 
@@ -134,6 +134,7 @@ class ChatRoom extends Component {
 
         return (
           <div className={classes.root}>
+            <ChatMenuBar contactUsername={contactUsername}/>
             <div className={[classes.flexItem, classes.messageListParent].join(" ")}>{msgList}</div>
             <ChatForm
               sendMessage={this.sendMessage}

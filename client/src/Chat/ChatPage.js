@@ -6,19 +6,19 @@ import ChatRoom from "./ChatRoom";
 import FloatingButton from "../FloatingButton";
 import firebase from "../Firebase";
 
-const db = firebase.database();
-const auth = firebase.auth();
 
 export default class ChatPage extends Component {
   constructor(props) {
     super(props);
-
+    this.db = firebase.database();
+    this.auth = firebase.auth();
     this.state = {
       messages: [],
       currentContactId: null,
       openAddFriend: false,
       newContactUsername: "",
-      newContactEmail: ""
+      newContactEmail: "",
+      contacts: {}
     };
 
     this.updateCurrentContact = this.updateCurrentContact.bind(this);
@@ -40,9 +40,9 @@ export default class ChatPage extends Component {
     evt.preventDefault();
     const {newContactUsername, newContactEmail} = this.state;
     
-    const user = auth.currentUser;
+    const user = this.auth.currentUser;
 
-    const query = db.ref("users").orderByChild("username").equalTo(newContactUsername).limitToLast(1)
+    const query = this.db.ref("users").orderByChild("username").equalTo(newContactUsername).limitToLast(1)
 
     query.once("value")
       .then((snapshot) => {
@@ -50,10 +50,11 @@ export default class ChatPage extends Component {
         const key = Object.keys(data)[0]
         
         if (data[key].email === newContactEmail) {
-          db.ref(`/users/${user.uid}/contacts`).set({
+          this.db.ref(`/users/${user.uid}/contacts`).update({
             [key]: {
               username: newContactUsername,
-              email: newContactEmail
+              email: newContactEmail,
+              uid: key
             }
             
           });
@@ -71,12 +72,16 @@ export default class ChatPage extends Component {
   }
 
   componentDidMount() {
-    const user = auth.currentUser;
+    const user = this.auth.currentUser;
+    console.log("mounting...");
     if (user) {
-      // need this for profile details in the future ?
-      // db.ref(`/users/${user.uid}`).on("value", snapshot => {
-      //   console.log(snapshot.val());
-      // });
+      this.db.ref(`users/${user.uid}/contacts`).on("value", (snapshot) => {
+        const contacts = snapshot.val()
+        if (contacts) {
+          this.setState({contacts});
+        }
+        
+      });
     }
   }
 
@@ -89,7 +94,7 @@ export default class ChatPage extends Component {
   }
 
   render() {
-    if (this.props.redirectToHome || !auth.currentUser) {
+    if (this.props.redirectToHome || !this.auth.currentUser) {
       return <Redirect to="/" />
     }
 
@@ -98,13 +103,14 @@ export default class ChatPage extends Component {
         {/* need friends names for userList may make another listener for this ?*/}
         <UserList
           updateCurrentContact={this.updateCurrentContact}
-          contacts={this.state.contacts}
-        />
+          contacts={this.state.contacts} />
+
         {/* need current clicked user id to get corrsp messages */}
         {this.state.currentContactId ? (
           <ChatRoom
             messages={this.state.messages}
             currentContactId={this.state.currentContactId}
+            contacts={this.state.contacts}
           />
         ) : (
           ""
