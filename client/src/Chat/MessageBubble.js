@@ -35,7 +35,8 @@ class MessageBubble extends React.Component{
         className={this.props.direction === "right" ? classes.floatRight : ""}
       >
         <Paper className={classes.root} elevation={1}>
-          <Typography component="div">{this.props.message}</Typography>
+          <Typography variant="body1">{this.props.message}</Typography>
+          <Typography variant="caption">{this.props.timestamp}</Typography>
         </Paper>
       </div>
     );

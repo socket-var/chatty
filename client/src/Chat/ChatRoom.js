@@ -24,21 +24,23 @@ const styles = {
   messageListParent: {
     display: "flex",
     flexDirection: "column-reverse",
-    overflowY: "scroll",
+    overflowY: "scroll"
   }
 };
 
-const setMessages = function( direction, snapshot) {
+const setMessages = function(direction, snapshot) {
   const data = snapshot.val();
+  const timestamp = `${new Date(data.timestamp).getHours().toString().padStart(2, "0")}:${new Date(data.timestamp).getMinutes().toString().padStart(2, "0")}`
   const message = {
     text: data.text,
-    direction
+    direction,
+    timestamp
   };
 
-    this.setState({
-      messages: [message, ...this.state.messages]
-    });
-}
+  this.setState({
+    messages: [message, ...this.state.messages]
+  });
+};
 
 class ChatRoom extends Component {
   constructor(props) {
@@ -61,16 +63,14 @@ class ChatRoom extends Component {
   }
 
   handleChange(evt) {
-    if (evt)
-    this.setState({ text: evt.target.value });
+    if (evt) this.setState({ text: evt.target.value });
   }
 
   // add message to messages/currUser/receiver/sent
   sendMessage() {
     const currentUser = auth.currentUser;
     // add it to me/to/friend/ and friend/from/me
-    const timestamp = firebase.database.ServerValue.TIMESTAMP;
-    
+    const timestamp = Date.now();
     db.ref(
       `messages/${currentUser.uid}/${this.props.currentContactId}/sent`
     ).push({
@@ -85,8 +85,7 @@ class ChatRoom extends Component {
       timestamp
     });
 
-    this.setState({text: ""});
-
+    this.setState({ text: "" });
   }
 
   // get all messages sent and received
@@ -96,13 +95,15 @@ class ChatRoom extends Component {
 
     console.log(this.props.currentContactId);
     if (this.props.currentContactId) {
+      db.ref(`messages/${user.uid}/${contact}/sent`).on(
+        "child_added",
+        setMessages.bind(this, "right")
+      );
 
-        db.ref(`messages/${user.uid}/${contact}/sent`)
-        .on("child_added", setMessages.bind(this, "right"))
-        
-        db.ref(`messages/${user.uid}/${contact}/received`).on(
-              "child_added", setMessages.bind(this, "left"))
-      
+      db.ref(`messages/${user.uid}/${contact}/received`).on(
+        "child_added",
+        setMessages.bind(this, "left")
+      );
     }
   }
 
@@ -113,13 +114,12 @@ class ChatRoom extends Component {
       db.ref(`messages/${user.uid}/${contact}/sent`).off();
       db.ref(`messages/${user.uid}/${contact}/received`).off();
     }
-    
   }
 
   render() {
     const { classes, currentContactId, contacts } = this.props;
 
-    const contactUsername = contacts[currentContactId].username
+    const contactUsername = contacts[currentContactId].username;
 
     const messages = this.state.messages;
 
@@ -128,14 +128,27 @@ class ChatRoom extends Component {
     if (this.props.currentContactId) {
       if (messages) {
         for (let index = 0; index < messages.length; index++) {
-          const {text, direction} = messages[index];
-          msgList.push(<MessageContainer key={index} message={text} direction={direction} />);
+          const { text, direction, timestamp } = messages[index];
+          msgList.push(
+            <MessageContainer
+              key={index}
+              message={text}
+              direction={direction}
+              timestamp={timestamp}
+            />
+          );
         }
 
         return (
           <div className={classes.root}>
-            <ChatMenuBar contactUsername={contactUsername}/>
-            <div className={[classes.flexItem, classes.messageListParent].join(" ")}>{msgList}</div>
+            <ChatMenuBar contactUsername={contactUsername} />
+            <div
+              className={[classes.flexItem, classes.messageListParent].join(
+                " "
+              )}
+            >
+              {msgList}
+            </div>
             <ChatForm
               sendMessage={this.sendMessage}
               text={this.state.text}

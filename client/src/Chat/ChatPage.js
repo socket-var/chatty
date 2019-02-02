@@ -73,7 +73,6 @@ export default class ChatPage extends Component {
 
   componentDidMount() {
     const user = this.auth.currentUser;
-    console.log("mounting...");
     if (user) {
       this.db.ref(`users/${user.uid}/contacts`).on("value", (snapshot) => {
         const contacts = snapshot.val()
