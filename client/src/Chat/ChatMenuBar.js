@@ -11,7 +11,7 @@ import Avatar from "@material-ui/core/Avatar";
 
 const styles = {
   root: {
-    flexGrow: 1
+    // flexGrow: 1
   },
   grow: {
     flexGrow: 1

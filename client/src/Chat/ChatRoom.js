@@ -4,7 +4,7 @@ import { withStyles } from "@material-ui/core/styles";
 
 import firebase from "../Firebase";
 import ChatMenuBar from "../Chat/ChatMenuBar";
-import MessageContainer from "./MessageBubble";
+import MessageBubble from "./MessageBubble";
 
 const db = firebase.database();
 const auth = firebase.auth();
@@ -30,14 +30,13 @@ const styles = {
 
 const setBulkMessages = function(direction, snapshot) {
   const data = snapshot.val() || {};
-  console.log(data);
 
   const messages = [];
 
   for (const key in data) {
     if (data.hasOwnProperty(key)) {
       const item = data[key];
-      const timestamp = `${new Date(item.timestamp)
+      const localTime = `${new Date(item.timestamp)
         .getHours()
         .toString()
         .padStart(2, "0")}:${new Date(item.timestamp)
@@ -47,7 +46,8 @@ const setBulkMessages = function(direction, snapshot) {
       messages.push({
         text: item.text,
         direction,
-        timestamp
+        localTime,
+        timestamp: item.timestamp
       });
     }
   }
@@ -57,7 +57,7 @@ const setBulkMessages = function(direction, snapshot) {
 
 const setMessages = function(direction, snapshot) {
   const data = snapshot.val();
-  const timestamp = `${new Date(data.timestamp)
+  const localTime = `${new Date(data.timestamp)
     .getHours()
     .toString()
     .padStart(2, "0")}:${new Date(data.timestamp)
@@ -67,7 +67,8 @@ const setMessages = function(direction, snapshot) {
   const message = {
     text: data.text,
     direction,
-    timestamp
+    timestamp: firebase.database.ServerValue.TIMESTAMP,
+    localTime
   };
 
   this.setState({
@@ -130,7 +131,6 @@ class ChatRoom extends Component {
     const user = auth.currentUser;
     const contact = this.props.currentContactId;
 
-    console.log(this.props.currentContactId);
     if (this.props.currentContactId) {
       // query for sent messages already in db
       const sentQuery = db.ref(`messages/${user.uid}/${contact}/sent`);
@@ -156,8 +156,10 @@ class ChatRoom extends Component {
           receivedMessages => {
             console.log("received messages loaded");
             messages = [...receivedMessages, ...messages];
+            console.log(messages);
             // sort all the messages by timestamp
-            messages.sort((a, b) => a.timestamp < b.timestamp);
+            messages.sort((a, b) => a.timestamp < b.timestamp ? 1 : -1);
+            console.log(messages);
             // set state with all messages
             return Promise.resolve(this.setState({ messages }));
           }
@@ -204,13 +206,14 @@ class ChatRoom extends Component {
     if (this.props.currentContactId) {
       if (messages) {
         for (let index = 0; index < messages.length; index++) {
-          const { text, direction, timestamp } = messages[index];
+          const { text, direction, localTime } = messages[index];
+          console.log(localTime)
           msgList.push(
-            <MessageContainer
+            <MessageBubble
               key={index}
               message={text}
               direction={direction}
-              timestamp={timestamp}
+              localTime={localTime}
             />
           );
         }

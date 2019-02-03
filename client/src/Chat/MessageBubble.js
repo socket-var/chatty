@@ -36,7 +36,7 @@ class MessageBubble extends React.Component{
       >
         <Paper className={classes.root} elevation={1}>
           <Typography variant="body1">{this.props.message}</Typography>
-          <Typography variant="caption">{this.props.timestamp}</Typography>
+          <Typography variant="caption">{this.props.localTime}</Typography>
         </Paper>
       </div>
     );
