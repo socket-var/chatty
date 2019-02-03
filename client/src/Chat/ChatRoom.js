@@ -82,7 +82,8 @@ class ChatRoom extends Component {
     this.state = {
       messages: [],
       text: "",
-      load: true
+      load: true,
+      currentContactId: null
     };
 
     this.sendMessage = this.sendMessage.bind(this);
@@ -126,63 +127,81 @@ class ChatRoom extends Component {
     this.setState({ text: "" });
   }
 
+  loadMessages(contact) {
+    const user = auth.currentUser;
+    // query for sent messages already in db
+    const sentQuery = db.ref(`messages/${user.uid}/${contact}/sent`);
+    let messages = [];
+    sentQuery
+      .once("value")
+      // got all sent messages
+      .then(setBulkMessages.bind(this, "right"))
+      .then(function(sentMessages) {
+        messages = sentMessages || [];
+        return db
+          .ref(`messages/${user.uid}/${contact}/received`)
+          .once("value");
+      })
+
+      .then(setBulkMessages.bind(this, "left"))
+      // got all received messages
+      .then(
+        receivedMessages => {
+          messages = [...receivedMessages, ...messages];
+          // sort all the messages by timestamp
+          messages.sort((a, b) => a.timestamp < b.timestamp ? 1 : -1);
+          // set state with all messages
+          return Promise.resolve(this.setState({ messages }));
+        }
+      )
+      .then(
+        () => {
+          // now add event listeners for new children added
+          // new child added ? set state
+          db.ref(`messages/${user.uid}/${contact}/sent`)
+            .orderByChild("timestamp")
+            .startAt(Date.now())
+            .on("child_added", setMessages.bind(this, "right"));
+
+          db.ref(`messages/${user.uid}/${contact}/received`)
+            .orderByChild("timestamp")
+            .startAt(Date.now())
+            .on("child_added", setMessages.bind(this, "left"));
+        }
+      )
+      .catch(function(err) {
+        console.log(err);
+      });
+  }
+
+
   // get all messages sent and received
   componentDidMount() {
-    const user = auth.currentUser;
+    
     const contact = this.props.currentContactId;
 
+    // its ok to not use callback because we have props.currentContactId with the same value
+    this.setState({currentContactId: contact}, this.loadMessages.bind(this, contact) );
+
     if (this.props.currentContactId) {
-      // query for sent messages already in db
-      const sentQuery = db.ref(`messages/${user.uid}/${contact}/sent`);
-      let messages = [];
-
-      sentQuery
-        .once("value")
-        // got all sent messages
-        .then(setBulkMessages.bind(this, "right"), err => {
-          console.log(err);
-        })
-        .then(function(sentMessages) {
-          console.log("sent messages loaded", sentMessages);
-          messages = sentMessages || [];
-          return db
-            .ref(`messages/${user.uid}/${contact}/received`)
-            .once("value");
-        })
-
-        .then(setBulkMessages.bind(this, "left"))
-        // got all received messages
-        .then(
-          receivedMessages => {
-            console.log("received messages loaded");
-            messages = [...receivedMessages, ...messages];
-            console.log(messages);
-            // sort all the messages by timestamp
-            messages.sort((a, b) => a.timestamp < b.timestamp ? 1 : -1);
-            console.log(messages);
-            // set state with all messages
-            return Promise.resolve(this.setState({ messages }));
-          }
-        )
-        .then(
-          () => {
-            // now add event listeners for new children added
-            // new child added ? set state
-            db.ref(`messages/${user.uid}/${contact}/sent`)
-              .orderByChild("timestamp")
-              .startAt(Date.now())
-              .on("child_added", setMessages.bind(this, "right"));
-
-            db.ref(`messages/${user.uid}/${contact}/received`)
-              .orderByChild("timestamp")
-              .startAt(Date.now())
-              .on("child_added", setMessages.bind(this, "left"));
-          }
-        )
-        .catch(function(err) {
-          console.log(err);
-        });
+      
     }
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const contact = nextProps.currentContactId;
+    if (contact !== prevState.currentContactId) {
+      return {currentContactId: contact};
+    }
+    else return null;
+
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.currentContactId !== prevState.currentContactId) {
+      this.loadMessages(this.state.currentContactId)
+    }
+    
   }
 
   componentWillUnmount() {
@@ -203,11 +222,10 @@ class ChatRoom extends Component {
 
     const msgList = [];
 
-    if (this.props.currentContactId) {
+    if (this.state.currentContactId) {
       if (messages) {
         for (let index = 0; index < messages.length; index++) {
           const { text, direction, localTime } = messages[index];
-          console.log(localTime)
           msgList.push(
             <MessageBubble
               key={index}
