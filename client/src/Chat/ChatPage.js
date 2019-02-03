@@ -60,6 +60,7 @@ export default class ChatPage extends Component {
           });
         }
         
+        this.setState({ openAddFriend: false });
       })
 
     
