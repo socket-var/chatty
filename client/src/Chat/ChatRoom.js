@@ -28,9 +28,42 @@ const styles = {
   }
 };
 
+const setBulkMessages = function(direction, snapshot) {
+  const data = snapshot.val() || {};
+  console.log(data);
+
+  const messages = [];
+
+  for (const key in data) {
+    if (data.hasOwnProperty(key)) {
+      const item = data[key];
+      const timestamp = `${new Date(item.timestamp)
+        .getHours()
+        .toString()
+        .padStart(2, "0")}:${new Date(item.timestamp)
+        .getMinutes()
+        .toString()
+        .padStart(2, "0")}`;
+      messages.push({
+        text: item.text,
+        direction,
+        timestamp
+      });
+    }
+  }
+
+  return Promise.resolve(messages);
+};
+
 const setMessages = function(direction, snapshot) {
   const data = snapshot.val();
-  const timestamp = `${new Date(data.timestamp).getHours().toString().padStart(2, "0")}:${new Date(data.timestamp).getMinutes().toString().padStart(2, "0")}`
+  const timestamp = `${new Date(data.timestamp)
+    .getHours()
+    .toString()
+    .padStart(2, "0")}:${new Date(data.timestamp)
+    .getMinutes()
+    .toString()
+    .padStart(2, "0")}`;
   const message = {
     text: data.text,
     direction,
@@ -57,7 +90,7 @@ class ChatRoom extends Component {
   }
 
   handleKeyUp(evt) {
-    if (evt.keyCode == 13) {
+    if (evt.keyCode === 13) {
       this.sendMessage();
     }
   }
@@ -71,18 +104,22 @@ class ChatRoom extends Component {
     const currentUser = auth.currentUser;
     // add it to me/to/friend/ and friend/from/me
     const timestamp = Date.now();
+    const serverTimestamp = firebase.database.ServerValue.TIMESTAMP;
+
     db.ref(
       `messages/${currentUser.uid}/${this.props.currentContactId}/sent`
     ).push({
       text: this.state.text,
-      timestamp
+      timestamp,
+      serverTimestamp
     });
 
     db.ref(
       `messages/${this.props.currentContactId}/${currentUser.uid}/received`
     ).push({
       text: this.state.text,
-      timestamp
+      timestamp,
+      serverTimestamp
     });
 
     this.setState({ text: "" });
@@ -95,15 +132,54 @@ class ChatRoom extends Component {
 
     console.log(this.props.currentContactId);
     if (this.props.currentContactId) {
-      db.ref(`messages/${user.uid}/${contact}/sent`).on(
-        "child_added",
-        setMessages.bind(this, "right")
-      );
+      // query for sent messages already in db
+      const sentQuery = db.ref(`messages/${user.uid}/${contact}/sent`);
+      let messages = [];
 
-      db.ref(`messages/${user.uid}/${contact}/received`).on(
-        "child_added",
-        setMessages.bind(this, "left")
-      );
+      sentQuery
+        .once("value")
+        // got all sent messages
+        .then(setBulkMessages.bind(this, "right"), err => {
+          console.log(err);
+        })
+        .then(function(sentMessages) {
+          console.log("sent messages loaded", sentMessages);
+          messages = sentMessages || [];
+          return db
+            .ref(`messages/${user.uid}/${contact}/received`)
+            .once("value");
+        })
+
+        .then(setBulkMessages.bind(this, "left"))
+        // got all received messages
+        .then(
+          receivedMessages => {
+            console.log("received messages loaded");
+            messages = [...receivedMessages, ...messages];
+            // sort all the messages by timestamp
+            messages.sort((a, b) => a.timestamp < b.timestamp);
+            // set state with all messages
+            return Promise.resolve(this.setState({ messages }));
+          }
+        )
+        .then(
+          () => {
+            // now add event listeners for new children added
+            // new child added ? set state
+            db.ref(`messages/${user.uid}/${contact}/sent`)
+              .orderByChild("timestamp")
+              .startAt(Date.now())
+              .on("child_added", setMessages.bind(this, "right"));
+
+            db.ref(`messages/${user.uid}/${contact}/received`)
+              .orderByChild("timestamp")
+              .startAt(Date.now())
+              .on("child_added", setMessages.bind(this, "left"));
+          }
+        )
+        .catch(function(err) {
+          console.log(err);
+        });
     }
   }
 

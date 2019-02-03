@@ -29,14 +29,12 @@ function ListItemLink(props) {
 class UserList extends Component {
   render() {
     const { classes, contacts } = this.props;
-    console.log(contacts);
 
     const userList = [];
 
     if (Object.keys(contacts).length !== 0 && contacts.constructor === Object) {
       for (let userId in contacts) {
         const user = contacts[userId];
-        console.log(userId);
         userList.push(
           <ListItem
             button
