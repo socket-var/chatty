@@ -64,6 +64,9 @@ function SignUpPage(props) {
         <Typography component="h1" variant="h5">
           Sign Up
         </Typography>
+        <div style={{color:"red"}}>
+          {props.errorMessage}
+        </div>
         <form className={classes.form} onSubmit={props.onSubmit}>
           <FormControl margin="normal" required fullWidth>
             <InputLabel htmlFor="userNameField">Username</InputLabel>

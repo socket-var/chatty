@@ -61,6 +61,9 @@ function LoginPage(props) {
         <Typography component="h1" variant="h5">
           Login
         </Typography>
+        <div style={{color:"red"}}>
+          {props.errorMessage}
+        </div>
         <form className={classes.form} onSubmit={props.onSubmit}>
           <FormControl margin="normal" required fullWidth>
             <InputLabel htmlFor="email">Email Address</InputLabel>

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import "./App.css";
 import "../ButtonAppBar";
 import ButtonAppBar from "../ButtonAppBar";
+import ToastNotifier from "../common/ToastNotifier";
 
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import HomePage from "../Home/HomePage";
@@ -25,25 +26,29 @@ class App extends Component {
       passwordField: "",
       confirmPasswordField: "",
       userNameField: "",
-      redirectToHome: false
+      redirectToHome: false,
+      signupPageErrorMessage: "",
+      loginPageErrorMessage: "",
+      successMessage: ""
     };
-
-    this.signUpHandler = this.signUpHandler.bind(this);
-    this.loginHandler = this.loginHandler.bind(this);
-    this.onInputChange = this.onInputChange.bind(this);
-    this.signOutHandler = this.signOutHandler.bind(this);
   }
 
-  signUpHandler(evt) {
+  signUpHandler = evt => {
     evt.preventDefault();
     let user;
     auth
       .setPersistence(firebase.auth.Auth.Persistence.SESSION)
       .then(() => {
-        return auth.createUserWithEmailAndPassword(
-          this.state.emailField,
-          this.state.passwordField
-        );
+        if (this.state.passwordField !== this.state.confirmPasswordField) {
+          return Promise.reject({
+            message: "Passwords did not match. Try again."
+          });
+        } else {
+          return auth.createUserWithEmailAndPassword(
+            this.state.emailField,
+            this.state.passwordField
+          );
+        }
       })
       .then(result => {
         user = result.user;
@@ -60,10 +65,10 @@ class App extends Component {
       .then(() => {
         this.setState({ isLoggedIn: true, redirectToChat: true });
       })
-      .catch(e => console.log(e.message));
-  }
+      .catch(e => this.setState({ signupPageErrorMessage: e.message }));
+  };
 
-  loginHandler(evt) {
+  loginHandler = evt => {
     evt.preventDefault();
 
     auth
@@ -74,32 +79,66 @@ class App extends Component {
           this.state.passwordField
         );
       })
-
       .then(() => {
-        this.setState({ isLoggedIn: true, redirectToChat: true, redirectToHome: false });
+        this.setState({
+          isLoggedIn: true,
+          redirectToChat: true,
+          redirectToHome: false,
+          successMessage: "Signed in successfully !!"
+        });
       })
-      .catch(e => console.log(e.message));
-  }
+      .catch(e => this.setState({ loginPageErrorMessage: e.message }));
+  };
 
-  signOutHandler(evt) {
-    evt.preventDefault()
-    auth.signOut()
-    .then(() => this.setState({ isLoggedIn: false, redirectToHome: true, redirectToChat: false }));
-  }
+  signOutHandler = evt => {
+    evt.preventDefault();
+    auth.signOut().then(() =>
+      this.setState({
+        isLoggedIn: false,
+        redirectToHome: true,
+        redirectToChat: false,
+        successMessage: "Signed out successfully !!"
+      })
+    );
+  };
 
-  onInputChange(evt) {
+  onInputChange = evt => {
     this.setState({
       [evt.target.id]: evt.target.value
     });
-  }
-
-  componentDidMount() {}
+  };
 
   render() {
-    const { isLoggedIn, redirectToChat } = this.state;
+    const {
+      isLoggedIn,
+      redirectToChat,
+      signupPageErrorMessage,
+      loginPageErrorMessage,
+      redirectToHome,
+      successMessage
+    } = this.state;
+
     return (
       <Router>
         <div className="App">
+          {signupPageErrorMessage ? (
+            <ToastNotifier message={signupPageErrorMessage} variant={"error"} />
+          ) : (
+            ""
+          )}
+
+          {loginPageErrorMessage ? (
+            <ToastNotifier message={loginPageErrorMessage} variant={"error"} />
+          ) : (
+            ""
+          )}
+
+          {successMessage ? (
+            <ToastNotifier message={successMessage} variant={"success"} />
+          ) : (
+            ""
+          )}
+
           <ButtonAppBar
             isLoggedIn={isLoggedIn}
             signOutHandler={this.signOutHandler}
@@ -107,7 +146,13 @@ class App extends Component {
           <Route path="/" exact component={HomePage} />
           <Route
             path="/chat"
-            render={props => <ChatPage {...props} isLoggedIn={isLoggedIn} redirectToHome={this.state.redirectToHome}/>}
+            render={props => (
+              <ChatPage
+                {...props}
+                isLoggedIn={isLoggedIn}
+                redirectToHome={redirectToHome}
+              />
+            )}
           />
           <Route
             path="/auth/register"
@@ -117,6 +162,7 @@ class App extends Component {
                 onSubmit={this.signUpHandler}
                 onInputChange={this.onInputChange}
                 redirectToChat={redirectToChat}
+                errorMessage={signupPageErrorMessage}
               />
             )}
           />
@@ -128,6 +174,7 @@ class App extends Component {
                 onSubmit={this.loginHandler}
                 onInputChange={this.onInputChange}
                 redirectToChat={redirectToChat}
+                errorMessage={loginPageErrorMessage}
               />
             )}
           />
