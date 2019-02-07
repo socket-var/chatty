@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 import "./App.css";
-import "../ButtonAppBar";
-import ButtonAppBar from "../ButtonAppBar";
+import ChattyAppBar from "../ChattyAppBar/ChattyAppBar";
 import ToastNotifier from "../common/ToastNotifier";
 
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import HomePage from "../Home/HomePage";
-import ChatPage from "../Chat/ChatPage";
+import ChatPage from "../ChatPage/ChatPage";
 import SignUpPage from "../Auth/SignUpPage";
 import LoginPage from "../Auth/LoginPage";
 
@@ -141,7 +140,7 @@ class App extends Component {
             ""
           )}
 
-          <ButtonAppBar
+          <ChattyAppBar
             isLoggedIn={isLoggedIn}
             signOutHandler={this.signOutHandler}
           />

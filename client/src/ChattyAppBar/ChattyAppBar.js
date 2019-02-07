@@ -30,7 +30,7 @@ const styles = theme => ({
   }
 });
 
-class SimpleTabs extends React.Component {
+class ChattyAppBar extends React.Component {
   state = {
     value: null
   };
@@ -103,10 +103,10 @@ class SimpleTabs extends React.Component {
   }
 }
 
-SimpleTabs.propTypes = {
+ChattyAppBar.propTypes = {
   classes: PropTypes.object.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   signOutHandler: PropTypes.func.isRequired
 };
 
-export default withStyles(styles)(SimpleTabs);
+export default withStyles(styles)(ChattyAppBar);

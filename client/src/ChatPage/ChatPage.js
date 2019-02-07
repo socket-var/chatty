@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
-import UserList from "./UserList";
-import ChatRoom from "./ChatRoom";
+import UserList from "./UserList/UserList";
+import ChatRoom from "./ChatRoom/ChatRoom";
 import PropTypes from "prop-types";
-import FloatingButton from "../FloatingButton";
+import FloatingButton from "./FloatingButton";
 import firebase from "../Firebase";
 
 

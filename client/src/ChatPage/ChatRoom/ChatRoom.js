@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import ChatForm from "./ChatForm";
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
-import firebase from "../Firebase";
-import ChatMenuBar from "../Chat/ChatMenuBar";
+import firebase from "../../Firebase";
+import ChatMenuBar from "./ChatMenuBar";
 import MessageBubble from "./MessageBubble";
 
 const db = firebase.database();
