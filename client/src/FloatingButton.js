@@ -43,31 +43,40 @@ function Transition(props) {
   return <Slide direction="up" {...props} />;
 }
 
-function FloatingActionButton(props) {
-  const { classes } = props;
+function FloatingActionButton({
+  classes,
+  newContactUsername,
+  newContactEmail,
+  action,
+  open,
+  onClickHandler,
+  onCloseHandler,
+  onInputChange,
+  onSubmit
+}) {
   let icon;
-  if (props.action === "addFriend") {
+  if (action === "addFriend") {
     icon = <AddIcon />;
   }
 
   return (
     <div className={classes.fab}>
-      <Fab color="primary" aria-label="Add" onClick={props.onClickHandler}>
+      <Fab color="primary" aria-label="Add" onClick={onClickHandler}>
         {icon}
       </Fab>
 
       <Dialog
         fullScreen
-        open={props.open}
-        onClose={props.onCloseHandler}
+        open={open}
+        onClose={onCloseHandler}
         TransitionComponent={Transition}
       >
-        <form className={classes.form} onSubmit={props.onSubmit}>
+        <form className={classes.form} onSubmit={onSubmit}>
           <AppBar className={classes.appBar}>
             <Toolbar>
               <IconButton
                 color="inherit"
-                onClick={props.onCloseHandler}
+                onClick={onCloseHandler}
                 aria-label="Close"
               >
                 <CloseIcon />
@@ -87,8 +96,8 @@ function FloatingActionButton(props) {
               id="newContactUsername"
               name="email"
               autoFocus
-              onChange={props.onInputChange}
-              value={props.newContactUsername}
+              onChange={onInputChange}
+              value={newContactUsername}
             />
           </FormControl>
           <FormControl margin="normal" required fullWidth>
@@ -98,8 +107,8 @@ function FloatingActionButton(props) {
               name="email"
               autoComplete="email"
               autoFocus
-              onChange={props.onInputChange}
-              value={props.newContactEmail}
+              onChange={onInputChange}
+              value={newContactEmail}
             />
           </FormControl>
         </form>
@@ -109,7 +118,15 @@ function FloatingActionButton(props) {
 }
 
 FloatingActionButton.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  newContactUsername: PropTypes.string.isRequired,
+  newContactEmail: PropTypes.string.isRequired,
+  action: PropTypes.string.isRequired,
+  open: PropTypes.bool.isRequired,
+  onClickHandler: PropTypes.func.isRequired,
+  onCloseHandler: PropTypes.func.isRequired,
+  onInputChange: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired
 };
 
 export default withStyles(styles)(FloatingActionButton);
