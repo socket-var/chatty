@@ -49,10 +49,9 @@ const styles = theme => ({
 
 
 
-function SignUpPage(props) {
-  const { classes } = props;
+function SignUpPage({ classes, redirectToChat, errorMessage, onInputChange, onSubmit }) {
 
-  if (props.redirectToChat) return <Redirect to={"/chat"} />
+  if (redirectToChat) return <Redirect to={"/chat"} />
 
   return (
     <main className={classes.main}>
@@ -65,25 +64,25 @@ function SignUpPage(props) {
           Sign Up
         </Typography>
         <div style={{color:"red"}}>
-          {props.errorMessage}
+          {errorMessage}
         </div>
-        <form className={classes.form} onSubmit={props.onSubmit}>
+        <form className={classes.form} onSubmit={onSubmit}>
           <FormControl margin="normal" required fullWidth>
             <InputLabel htmlFor="userNameField">Username</InputLabel>
-            <Input id="userNameField" name="email" autoFocus onChange={props.onInputChange} value={props.userNameField}/>
+            <Input id="userNameField" name="email" autoFocus onChange={onInputChange} />
           </FormControl>
           <FormControl margin="normal" required fullWidth>
             <InputLabel htmlFor="emailField">Email Address</InputLabel>
-            <Input id="emailField" name="email" autoComplete="email" autoFocus onChange={props.onInputChange} value={props.emailField}/>
+            <Input id="emailField" name="email" autoComplete="email" autoFocus onChange={onInputChange} />
           </FormControl>
           <FormControl margin="normal" required fullWidth>
             <InputLabel htmlFor="passwordField">Password</InputLabel>
-            <Input name="password" type="password" id="passwordField" autoComplete="new-password" onChange={props.onInputChange} />
+            <Input name="password" type="password" id="passwordField" autoComplete="new-password" onChange={onInputChange} />
           </FormControl>
 
           <FormControl margin="normal" required fullWidth>
             <InputLabel htmlFor="confirmPasswordField">Confirm Password</InputLabel>
-            <Input name="password" type="password" id="confirmPasswordField" autoComplete="confirm-password" onChange={props.onInputChange}/>
+            <Input name="password" type="password" id="confirmPasswordField" autoComplete="confirm-password" onChange={onInputChange}/>
           </FormControl>
 
           <FormControlLabel
@@ -108,6 +107,10 @@ function SignUpPage(props) {
 
 SignUpPage.propTypes = {
   classes: PropTypes.object.isRequired,
+  redirectToChat: PropTypes.bool.isRequired,
+  errorMessage: PropTypes.string.isRequired,
+  onInputChange: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired
 };
 
 export default withStyles(styles)(SignUpPage);

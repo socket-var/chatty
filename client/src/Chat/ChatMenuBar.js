@@ -22,43 +22,30 @@ const styles = {
   }
 };
 
-class MenuAppBar extends React.Component {
-  state = {};
-
-  handleMenu = event => {
-    this.setState({ anchorEl: event.currentTarget });
-  };
-
-  handleClose = () => {
-    this.setState({ anchorEl: null });
-  };
-
-  render() {
-    const { classes } = this.props;
-
-    return (
-      <div className={classes.root}>
-        <AppBar position="static">
-          <Toolbar>
-            <div>
-              <IconButton>
-                <Avatar>
-                  <PersonIcon />
-                </Avatar>
-              </IconButton>
-            </div>
-            <Typography variant="h6" color="inherit" className={classes.grow}>
-              {this.props.contactUsername}
-            </Typography>
-          </Toolbar>
-        </AppBar>
-      </div>
-    );
-  }
-}
-
-MenuAppBar.propTypes = {
-  classes: PropTypes.object.isRequired
+const ChatMenuBar = ({ classes, contactUsername }) => {
+  return (
+    <div className={classes.root}>
+      <AppBar position="static">
+        <Toolbar>
+          <div>
+            <IconButton>
+              <Avatar>
+                <PersonIcon />
+              </Avatar>
+            </IconButton>
+          </div>
+          <Typography variant="h6" color="inherit" className={classes.grow}>
+            {contactUsername}
+          </Typography>
+        </Toolbar>
+      </AppBar>
+    </div>
+  );
 };
 
-export default withStyles(styles)(MenuAppBar);
+ChatMenuBar.propTypes = {
+  classes: PropTypes.object.isRequired,
+  contactUsername: PropTypes.string.isRequired
+};
+
+export default withStyles(styles)(ChatMenuBar);

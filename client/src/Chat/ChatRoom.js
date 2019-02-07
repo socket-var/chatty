@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import ChatForm from "./ChatForm";
 import { withStyles } from "@material-ui/core/styles";
-
+import PropTypes from "prop-types";
 import firebase from "../Firebase";
 import ChatMenuBar from "../Chat/ChatMenuBar";
 import MessageBubble from "./MessageBubble";
@@ -86,30 +86,28 @@ class ChatRoom extends Component {
       currentContactId: null
     };
 
-    this.sendMessage = this.sendMessage.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.handleKeyUp = this.handleKeyUp.bind(this);
   }
 
-  handleKeyUp(evt) {
+  handleKeyUp = (evt) => {
     if (evt.keyCode === 13) {
       this.sendMessage();
     }
   }
 
-  handleChange(evt) {
+  handleChange = (evt) => {
     if (evt) this.setState({ text: evt.target.value });
   }
 
   // add message to messages/currUser/receiver/sent
-  sendMessage() {
+  sendMessage = () => {
+    const { currentContactId } = this.props;
     const currentUser = auth.currentUser;
     // add it to me/to/friend/ and friend/from/me
     const timestamp = Date.now();
     const serverTimestamp = firebase.database.ServerValue.TIMESTAMP;
 
     db.ref(
-      `messages/${currentUser.uid}/${this.props.currentContactId}/sent`
+      `messages/${currentUser.uid}/${currentContactId}/sent`
     ).push({
       text: this.state.text,
       timestamp,
@@ -117,7 +115,7 @@ class ChatRoom extends Component {
     });
 
     db.ref(
-      `messages/${this.props.currentContactId}/${currentUser.uid}/received`
+      `messages/${currentContactId}/${currentUser.uid}/received`
     ).push({
       text: this.state.text,
       timestamp,
@@ -177,27 +175,17 @@ class ChatRoom extends Component {
 
   // get all messages sent and received
   componentDidMount() {
+    const { currentContactId } = this.props;
     
-    const contact = this.props.currentContactId;
-
-    // its ok to not use callback because we have props.currentContactId with the same value
-    this.setState({currentContactId: contact}, this.loadMessages.bind(this, contact) );
-
-    if (this.props.currentContactId) {
-      
-    }
-  }
-
-  static getDerivedStateFromProps(nextProps, prevState) {
-    const contact = nextProps.currentContactId;
-    if (contact !== prevState.currentContactId) {
-      return {currentContactId: contact};
-    }
-    else return null;
+    this.setState({currentContactId}, this.loadMessages.bind(this, currentContactId) );
 
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { currentContactId } = this.props;
+    if (prevProps.currentContactId !== currentContactId) {
+      this.setState({currentContactId: currentContactId});
+    }
     if (this.state.currentContactId !== prevState.currentContactId) {
       this.loadMessages(this.state.currentContactId)
     }
@@ -206,10 +194,10 @@ class ChatRoom extends Component {
 
   componentWillUnmount() {
     const user = auth.currentUser;
-    const contact = this.props.currentContactId;
+    const { currentContactId } = this.props;
     if (user) {
-      db.ref(`messages/${user.uid}/${contact}/sent`).off();
-      db.ref(`messages/${user.uid}/${contact}/received`).off();
+      db.ref(`messages/${user.uid}/${currentContactId}/sent`).off();
+      db.ref(`messages/${user.uid}/${currentContactId}/received`).off();
     }
   }
 
@@ -261,6 +249,10 @@ class ChatRoom extends Component {
       return <div>Texts appear here</div>;
     }
   }
+}
+
+ChatRoom.propTypes = {
+  currentContactId: PropTypes.string.isRequired
 }
 
 export default withStyles(styles)(ChatRoom);

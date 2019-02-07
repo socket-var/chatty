@@ -28,19 +28,26 @@ class MessageBubble extends React.Component{
 
 
   render() {
-    const { classes } = this.props;
+    const { classes, direction, message, localTime } = this.props;
 
     return (
       <div
-        className={this.props.direction === "right" ? classes.floatRight : ""}
+        className={direction === "right" ? classes.floatRight : ""}
       >
         <Paper className={classes.root} elevation={1}>
-          <Typography variant="body1">{this.props.message}</Typography>
-          <Typography variant="caption">{this.props.localTime}</Typography>
+          <Typography variant="body1">{message}</Typography>
+          <Typography variant="caption">{localTime}</Typography>
         </Paper>
       </div>
     );
   }
+}
+
+MessageBubble.propTypes = {
+  classes: PropTypes.object.isRequired,
+  direction: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired,
+  localTime: PropTypes.string.isRequired
 }
 
 export default withStyles(styles)(MessageBubble);

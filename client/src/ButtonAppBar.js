@@ -8,7 +8,7 @@ import Typography from "@material-ui/core/Typography";
 import Toolbar from "@material-ui/core/Toolbar";
 import Button from "@material-ui/core/Button";
 
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const styles = theme => ({
   root: {
@@ -40,13 +40,13 @@ class SimpleTabs extends React.Component {
   };
 
   render() {
-    const { classes } = this.props;
+    const { classes, isLoggedIn, signOutHandler } = this.props;
     const { value } = this.state;
 
     return (
       <div className={classes.root}>
         <AppBar position="static">
-          <Toolbar className={this.props.isLoggedIn ? "" : classes.floatToolBarItems}>
+          <Toolbar className={isLoggedIn ? "" : classes.floatToolBarItems}>
             <Typography
               variant="h3"
               color="inherit"
@@ -56,7 +56,7 @@ class SimpleTabs extends React.Component {
               Chatty
             </Typography>
 
-            {this.props.isLoggedIn ? (
+            {isLoggedIn ? (
               <React.Fragment>
                 <Tabs
                   value={value ? value : false}
@@ -71,7 +71,7 @@ class SimpleTabs extends React.Component {
                 <Button
                   color="inherit"
                   className={classes.defaultChild}
-                  onClick={this.props.signOutHandler}
+                  onClick={signOutHandler}
                 >
                   Sign out
                 </Button>
@@ -104,7 +104,9 @@ class SimpleTabs extends React.Component {
 }
 
 SimpleTabs.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  isLoggedIn: PropTypes.bool.isRequired,
+  signOutHandler: PropTypes.func.isRequired
 };
 
 export default withStyles(styles)(SimpleTabs);

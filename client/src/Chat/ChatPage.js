@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import UserList from "./UserList";
 import ChatRoom from "./ChatRoom";
-
+import PropTypes from "prop-types";
 import FloatingButton from "../FloatingButton";
 import firebase from "../Firebase";
 
@@ -21,22 +21,17 @@ export default class ChatPage extends Component {
       contacts: {}
     };
 
-    this.updateCurrentContact = this.updateCurrentContact.bind(this);
-    this.openAddContactMenu = this.openAddContactMenu.bind(this);
-    this.handleClose = this.handleClose.bind(this);
-    this.addContact = this.addContact.bind(this);
-    this.onInputChange = this.onInputChange.bind(this);
   }
 
-  openAddContactMenu() {
+  openAddContactMenu = () => {
     this.setState({ openAddFriend: true });
   }
 
-  handleClose() {
+  handleClose = () => {
     this.setState({ openAddFriend: false });
   }
 
-  addContact(evt) {
+  addContact = (evt) => {
     evt.preventDefault();
     const {newContactUsername, newContactEmail} = this.state;
     
@@ -66,7 +61,7 @@ export default class ChatPage extends Component {
     
   }
 
-  onInputChange(evt) {
+  onInputChange = (evt) => {
     this.setState({
       [evt.target.id]: evt.target.value
     });
@@ -85,7 +80,7 @@ export default class ChatPage extends Component {
     }
   }
 
-  updateCurrentContact(evt) {
+  updateCurrentContact = (evt) => {
     const currentContactId = evt.currentTarget.dataset.userid;
     // once id is updated it is delegated to chat room to retrieve messages
     this.setState({
@@ -134,4 +129,8 @@ export default class ChatPage extends Component {
       </div>
     );
   }
+}
+
+ChatPage.propTypes = {
+  redirectToHome: PropTypes.bool.isRequired
 }

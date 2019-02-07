@@ -33,6 +33,8 @@ class App extends Component {
     };
   }
 
+
+  
   signUpHandler = evt => {
     evt.preventDefault();
     let user;
